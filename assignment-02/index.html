@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Homework 02 standalone web app placeholder." />
+    <title>Homework 02 · Homework Portfolio</title>
+    <script>
+      (() => {
+        try {
+          if (localStorage.getItem("homework-theme") === "light") {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch {}
+      })();
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="assignment-shell">
+      <header class="assignment-header">
+        <a class="wordmark" href="../index.html">Homework Portfolio</a>
+        <div class="assignment-actions">
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">
+            Light mode
+          </button>
+          <a class="back-link" href="../index.html">
+            <svg class="arrow arrow-back" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path d="M17 10H4" />
+              <path d="m9 4-6 6 6 6" />
+            </svg>
+            <span>Back home</span>
+          </a>
+        </div>
+      </header>
+
+      <main class="assignment-main">
+        <h1>Homework 02</h1>
+        <p class="intro">This is the standalone app space for the second assignment.</p>
+
+        <section class="placeholder-state" aria-labelledby="placeholder-title">
+          <h2 id="placeholder-title">Coming soon</h2>
+          <p>Replace this screen with the finished Homework 02 project.</p>
+        </section>
+      </main>
+    </div>
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const toggle = document.querySelector("#theme-toggle");
+        if (!(toggle instanceof HTMLButtonElement)) return;
+        const renderTheme = () => {
+          const light = root.dataset.theme === "light";
+          toggle.textContent = light ? "Dark mode" : "Light mode";
+          toggle.setAttribute("aria-pressed", String(light));
+          toggle.setAttribute("aria-label", light ? "Switch to dark mode" : "Switch to light mode");
+          toggle.title = light ? "Switch to dark mode" : "Switch to light mode";
+        };
+        toggle.addEventListener("click", () => {
+          const light = root.dataset.theme !== "light";
+          if (light) {
+            root.dataset.theme = "light";
+            try { localStorage.setItem("homework-theme", "light"); } catch {}
+          } else {
+            root.removeAttribute("data-theme");
+            try { localStorage.removeItem("homework-theme"); } catch {}
+          }
+          renderTheme();
+        });
+        renderTheme();
+      })();
+    </script>
+  </body>
+</html>

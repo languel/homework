@@ -3,28 +3,162 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Homework</title>
-    <style>
-      :root { color-scheme: light dark; }
-      body {
-        align-items: center;
-        background: Canvas;
-        color: CanvasText;
-        display: flex;
-        font-family: system-ui, sans-serif;
-        justify-content: center;
-        margin: 0;
-        min-height: 100vh;
-      }
-      main { max-width: 38rem; padding: 2rem; text-align: center; }
-      h1 { font-size: clamp(2rem, 8vw, 4rem); margin: 0; }
-      p { font-size: 1.125rem; line-height: 1.6; }
-    </style>
+    <meta
+      name="description"
+      content="A portfolio of four small homework web apps."
+    />
+    <title>Homework Portfolio</title>
+    <script>
+      (() => {
+        try {
+          if (localStorage.getItem("homework-theme") === "light") {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch {
+          // Private browsing and blocked storage should keep the dark default.
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main>
-      <h1>Homework</h1>
-      <p>This site is ready for my first assignment.</p>
-    </main>
+    <div class="site-shell">
+      <header class="site-header" id="top">
+        <a class="wordmark" href="#top">Homework Portfolio</a>
+
+        <div class="header-actions">
+          <nav class="desktop-nav" aria-label="Primary navigation">
+            <a class="nav-link" href="#top" aria-current="page">Home</a>
+            <a class="nav-link" href="#assignments">Assignments</a>
+            <a class="nav-link" href="#about">About</a>
+          </nav>
+
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">
+            Light mode
+          </button>
+
+          <details class="mobile-nav">
+            <summary aria-label="Open navigation">
+              <span class="menu-icon" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </summary>
+            <nav class="mobile-menu" aria-label="Mobile navigation">
+              <a class="nav-link" href="#top">Home</a>
+              <a class="nav-link" href="#assignments">Assignments</a>
+              <a class="nav-link" href="#about">About</a>
+            </nav>
+          </details>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <h1 id="hero-title">A home for four experiments</h1>
+            <p>Each assignment lives in its own small web app.</p>
+            <a class="text-link" href="#assignments">
+              <span>View assignments</span>
+              <svg class="arrow" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="M3 10h13" />
+                <path d="m11 4 6 6-6 6" />
+              </svg>
+            </a>
+          </div>
+
+        </section>
+
+        <section class="assignments" id="assignments" aria-labelledby="assignments-title">
+          <p class="section-label">Assignments</p>
+          <h2 id="assignments-title">Four small web apps</h2>
+
+          <div class="assignment-grid">
+            <article class="assignment">
+              <h3>Homework 01</h3>
+              <p>A short description of what this assignment explores.</p>
+              <a class="text-link" href="assignment-01/index.html">
+                <span>Open assignment</span>
+                <svg class="arrow" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path d="M3 10h13" />
+                  <path d="m11 4 6 6-6 6" />
+                </svg>
+              </a>
+            </article>
+
+            <article class="assignment">
+              <h3>Homework 02</h3>
+              <p>A short description of what this assignment explores.</p>
+              <a class="text-link" href="assignment-02/index.html">
+                <span>Open assignment</span>
+                <svg class="arrow" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path d="M3 10h13" />
+                  <path d="m11 4 6 6-6 6" />
+                </svg>
+              </a>
+            </article>
+
+            <article class="assignment">
+              <h3>Homework 03</h3>
+              <p>A short description of what this assignment explores.</p>
+              <a class="text-link" href="assignment-03/index.html">
+                <span>Open assignment</span>
+                <svg class="arrow" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path d="M3 10h13" />
+                  <path d="m11 4 6 6-6 6" />
+                </svg>
+              </a>
+            </article>
+
+            <article class="assignment">
+              <h3>Homework 04</h3>
+              <p>A short description of what this assignment explores.</p>
+              <a class="text-link" href="assignment-04/index.html">
+                <span>Open assignment</span>
+                <svg class="arrow" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path d="M3 10h13" />
+                  <path d="m11 4 6 6-6 6" />
+                </svg>
+              </a>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer" id="about">
+        <p>Homework Portfolio</p>
+        <p>Built one assignment at a time.</p>
+      </footer>
+    </div>
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const toggle = document.querySelector("#theme-toggle");
+        if (!(toggle instanceof HTMLButtonElement)) return;
+
+        const renderTheme = () => {
+          const light = root.dataset.theme === "light";
+          toggle.textContent = light ? "Dark mode" : "Light mode";
+          toggle.setAttribute("aria-pressed", String(light));
+          toggle.setAttribute("aria-label", light ? "Switch to dark mode" : "Switch to light mode");
+          toggle.title = light ? "Switch to dark mode" : "Switch to light mode";
+        };
+
+        toggle.addEventListener("click", () => {
+          const light = root.dataset.theme !== "light";
+          if (light) {
+            root.dataset.theme = "light";
+            try { localStorage.setItem("homework-theme", "light"); } catch {}
+          } else {
+            root.removeAttribute("data-theme");
+            try { localStorage.removeItem("homework-theme"); } catch {}
+          }
+          renderTheme();
+        });
+
+        renderTheme();
+      })();
+    </script>
   </body>
 </html>
