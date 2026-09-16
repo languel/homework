@@ -2,8 +2,8 @@
 
 This repository is the home page and container for four homework projects. The
 landing page is intentionally small: it introduces the collection and links to
-four separate folders. Each folder is a standalone web app placeholder that can
-be replaced by a finished assignment without redesigning the portfolio shell.
+four separate folders. Each folder is a standalone web app, with unfinished
+assignments kept as placeholders until their branch is ready.
 
 ## What is here
 
@@ -14,15 +14,15 @@ The project is a static site, so there is no build step or framework dependency.
 | [`index.html`](index.html) | Portfolio landing page and assignment directory |
 | [`styles.css`](styles.css) | Landing page layout, responsive rules, and theme tokens |
 | [`assignment-shared.css`](assignment-shared.css) | Shared baseline styles for standalone assignment pages |
-| `assignment-01/` | Homework 01 standalone app placeholder |
+| `assignment-01/` | Homework 01: interactive Sol LeWitt wall drawings |
 | `assignment-02/` | Homework 02 standalone app placeholder |
 | `assignment-03/` | Homework 03 standalone app placeholder |
 | `assignment-04/` | Homework 04 standalone app placeholder |
 
-Each assignment folder contains its own `index.html` and a local `styles.css`
-entry point. The local stylesheet imports the shared baseline so the placeholders
-look consistent today, while a future assignment branch can replace that import
-with completely local app styles when it needs a different visual system.
+Each assignment folder contains its own `index.html` entry point. The placeholder
+pages use a local `styles.css` entry point that imports the shared baseline;
+Homework 01 is a self-contained p5.js page with inline styles and script so its
+canvas and inspector layout remain together.
 
 ## Run it locally
 
@@ -37,10 +37,28 @@ python3 -m http.server 8000
 
 Then visit <http://localhost:8000>. The four links on the landing page should
 open `/assignment-01/` through `/assignment-04/`, and each assignment page
-should offer a `Back home` link.
+should offer a return link to the portfolio (Homework 01 labels it
+`Homework portfolio`; the placeholders label it `Back home`).
 
 There is no package manager setup or compilation step. Any static server that
 serves the repository root will work.
+
+## Homework 01: Sol LeWitt wall drawings
+
+Homework 01 is a single-file p5.js study of Sol LeWitt's instruction-based wall
+drawings. It includes five drawing systems (Wall Drawings 118, 17, 46, 122, and
+273), parameter controls, procedural regeneration, pointer interactions, and PNG
+export. The assignment keeps its own canvas and inspector layout inside
+`assignment-01/index.html`, while the small header link returns to the portfolio.
+
+The drawing engine loads p5.js 1.11.3 from cdnjs, so the first load needs network
+access to that CDN. Once p5.js is available, the app has no build step and does
+not send drawing data anywhere.
+
+The assignment follows the portfolio's shared theme preference: it starts in
+dark mode, offers a light-mode control, and stores the choice in the same
+`homework-theme` local-storage key. The artwork canvas remains a paper-like white
+surface so the generated line work stays legible in either surrounding theme.
 
 ## Theme behavior
 
