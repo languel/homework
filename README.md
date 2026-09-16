@@ -15,14 +15,14 @@ The project is a static site, so there is no build step or framework dependency.
 | [`styles.css`](styles.css) | Landing page layout, responsive rules, and theme tokens |
 | [`assignment-shared.css`](assignment-shared.css) | Shared baseline styles for standalone assignment pages |
 | `assignment-01/` | Homework 01: interactive Sol LeWitt wall drawings |
-| `assignment-02/` | Homework 02 standalone app placeholder |
+| `assignment-02/` | Homework 02: smooth Pollock gesture sketch |
 | `assignment-03/` | Homework 03 standalone app placeholder |
 | `assignment-04/` | Homework 04 standalone app placeholder |
 
 Each assignment folder contains its own `index.html` entry point. The placeholder
 pages use a local `styles.css` entry point that imports the shared baseline;
-Homework 01 is a self-contained p5.js page with inline styles and script so its
-canvas and inspector layout remain together.
+Homework 01 and Homework 02 are self-contained p5.js pages with inline styles and
+scripts so their canvas experiences remain together.
 
 ## Run it locally
 
@@ -37,7 +37,7 @@ python3 -m http.server 8000
 
 Then visit <http://localhost:8000>. The four links on the landing page should
 open `/assignment-01/` through `/assignment-04/`, and each assignment page
-should offer a return link to the portfolio (Homework 01 labels it
+should offer a return link to the portfolio (Homework 01 and Homework 02 label it
 `Homework portfolio`; the placeholders label it `Back home`).
 
 There is no package manager setup or compilation step. Any static server that
@@ -59,6 +59,17 @@ The assignment follows the portfolio's shared theme preference: it starts in
 dark mode, offers a light-mode control, and stores the choice in the same
 `homework-theme` local-storage key. The artwork canvas remains a paper-like white
 surface so the generated line work stays legible in either surrounding theme.
+
+## Homework 02: Smooth Pollock Gesture
+
+Homework 02 is a full-window p5.js gesture sketch. Move the pointer to lay down
+smooth tangent-matched curves; pressing starts a new randomized brush personality,
+and Space clears the canvas. The sketch varies line width, color, and splatter
+behavior to keep each gesture responsive and painterly.
+
+The drawing engine loads p5.js 1.11.3 from jsDelivr and keeps the gesture entirely
+in the browser. The small overlay link returns to the portfolio while leaving the
+canvas full-screen.
 
 ## Theme behavior
 

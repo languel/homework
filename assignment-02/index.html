@@ -3,72 +3,474 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Homework 02 standalone web app placeholder." />
-    <title>Homework 02 · Homework Portfolio</title>
-    <script>
-      (() => {
-        try {
-          if (localStorage.getItem("homework-theme") === "light") {
-            document.documentElement.dataset.theme = "light";
-          }
-        } catch {}
-      })();
-    </script>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Homework 02 — Smooth Pollock Gesture</title>
+    <style>
+      :root {
+        --ui-bg: rgba(19, 19, 19, 0.9);
+        --ui-ink: #e9e9ec;
+        --ui-line: #2b2b2b;
+        --ui-accent: #dd985f;
+        --ui-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #e8e0cf;
+      }
+      canvas {
+        display: block;
+      }
+      #portfolio-nav {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 10;
+      }
+      #portfolio-nav a {
+        background: var(--ui-bg);
+        border: 1px solid var(--ui-line);
+        color: var(--ui-ink);
+        display: inline-block;
+        font-family: var(--ui-mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        padding: 8px 10px;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+      #portfolio-nav a:hover,
+      #portfolio-nav a:focus-visible {
+        border-color: var(--ui-accent);
+        color: var(--ui-accent);
+      }
+      @media (max-width: 520px) {
+        #portfolio-nav {
+          left: 10px;
+          top: 10px;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.3/lib/p5.min.js"></script>
   </head>
   <body>
-    <div class="assignment-shell">
-      <header class="assignment-header">
-        <a class="wordmark" href="../index.html">Homework Portfolio</a>
-        <div class="assignment-actions">
-          <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">
-            Light mode
-          </button>
-          <a class="back-link" href="../index.html">
-            <svg class="arrow arrow-back" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-              <path d="M17 10H4" />
-              <path d="m9 4-6 6 6 6" />
-            </svg>
-            <span>Back home</span>
-          </a>
-        </div>
-      </header>
-
-      <main class="assignment-main">
-        <h1>Homework 02</h1>
-        <p class="intro">This is the standalone app space for the second assignment.</p>
-
-        <section class="placeholder-state" aria-labelledby="placeholder-title">
-          <h2 id="placeholder-title">Coming soon</h2>
-          <p>Replace this screen with the finished Homework 02 project.</p>
-        </section>
-      </main>
-    </div>
+    <nav id="portfolio-nav" aria-label="Portfolio navigation">
+      <a href="../index.html">← Homework portfolio</a>
+    </nav>
     <script>
-      (() => {
-        const root = document.documentElement;
-        const toggle = document.querySelector("#theme-toggle");
-        if (!(toggle instanceof HTMLButtonElement)) return;
-        const renderTheme = () => {
-          const light = root.dataset.theme === "light";
-          toggle.textContent = light ? "Dark mode" : "Light mode";
-          toggle.setAttribute("aria-pressed", String(light));
-          toggle.setAttribute("aria-label", light ? "Switch to dark mode" : "Switch to light mode");
-          toggle.title = light ? "Switch to dark mode" : "Switch to light mode";
-        };
-        toggle.addEventListener("click", () => {
-          const light = root.dataset.theme !== "light";
-          if (light) {
-            root.dataset.theme = "light";
-            try { localStorage.setItem("homework-theme", "light"); } catch {}
-          } else {
-            root.removeAttribute("data-theme");
-            try { localStorage.removeItem("homework-theme"); } catch {}
+      // Smooth Pollock Gesture Demo — p5.js 2+
+      // Tangent-matched curves + randomized gesture personalities.
+
+      let backgroundColor = "#e8e0cf";
+
+      let palette = [
+        "#171614",
+        "#29251f",
+        "#f0eadb",
+        "#b9ae98",
+        "#9b2922",
+        "#c58b28",
+        "#244a5a",
+        "#68533b",
+      ];
+
+      let colorIndex = 0;
+
+      // -----------------------------------------------------------------------------
+      // CURVE / PAINT PARAMETERS
+      // -----------------------------------------------------------------------------
+
+      let sampleSpacing = 7;
+      let tension = 1.0;
+
+      let maxLineWidth = 90;
+      let maxBlobSize = 24;
+      let sizeInfluence = 0.55;
+
+      let paintSize = 1;
+
+      // -----------------------------------------------------------------------------
+      // SPLAT PARAMETERS
+      // -----------------------------------------------------------------------------
+
+      let splatMode = "sparse";
+
+      let splatChance = 0.25;
+      let splatMin = 0;
+      let splatMax = 5;
+
+      let splatSpread = 2.5;
+      let splatDistanceVariation = 0.8;
+
+      let splatSizeMin = 0.1;
+      let splatSizeMax = 0.5;
+
+      // -----------------------------------------------------------------------------
+      // GESTURE
+      // -----------------------------------------------------------------------------
+
+      let points = [];
+
+      // -----------------------------------------------------------------------------
+      // SETUP
+      // -----------------------------------------------------------------------------
+
+      function setup() {
+        createCanvas(windowWidth, windowHeight);
+
+        background(backgroundColor);
+
+        noFill();
+        strokeCap(ROUND);
+        strokeJoin(ROUND);
+
+        randomizeGesture();
+      }
+
+      // -----------------------------------------------------------------------------
+      // INPUT
+      // -----------------------------------------------------------------------------
+
+      function mouseMoved() {
+        addGesturePoint(mouseX, mouseY);
+      }
+
+      // -----------------------------------------------------------------------------
+      // SAMPLE GESTURE
+      // -----------------------------------------------------------------------------
+
+      function addGesturePoint(x, y) {
+        if (points.length === 0) {
+          points.push({ x, y });
+          return;
+        }
+
+        let last = points[points.length - 1];
+
+        if (dist(last.x, last.y, x, y) < sampleSpacing) {
+          return;
+        }
+
+        points.push({ x, y });
+
+        // Need four points:
+        //
+        // P0 ---- P1 ---- P2 ---- P3
+        //
+        // We render the P1 -> P2 segment.
+        if (points.length >= 4) {
+          drawSmoothPaintSegment(points[0], points[1], points[2], points[3]);
+
+          points.shift();
+        }
+      }
+
+      // -----------------------------------------------------------------------------
+      // SMOOTH PAINT SEGMENT
+      // -----------------------------------------------------------------------------
+
+      function drawSmoothPaintSegment(p0, p1, p2, p3) {
+        // ---------------------------------------------------------------------------
+        // SPEED -> PAINT WIDTH
+        // ---------------------------------------------------------------------------
+
+        let segmentLength = dist(p1.x, p1.y, p2.x, p2.y);
+
+        let newSize = maxLineWidth / max(segmentLength, 0.001);
+
+        newSize = min(newSize, maxBlobSize);
+
+        paintSize = sizeInfluence * newSize + (1 - sizeInfluence) * paintSize;
+
+        // ---------------------------------------------------------------------------
+        // TANGENTS
+        // ---------------------------------------------------------------------------
+
+        let t1x = (p2.x - p0.x) * tension;
+
+        let t1y = (p2.y - p0.y) * tension;
+
+        let t2x = (p3.x - p1.x) * tension;
+
+        let t2y = (p3.y - p1.y) * tension;
+
+        // Catmull-Rom-ish tangent -> Bézier controls
+
+        let c1x = p1.x + t1x / 6;
+
+        let c1y = p1.y + t1y / 6;
+
+        let c2x = p2.x - t2x / 6;
+
+        let c2y = p2.y - t2y / 6;
+
+        // ---------------------------------------------------------------------------
+        // MAIN LINE
+        // ---------------------------------------------------------------------------
+
+        let c = color(palette[colorIndex]);
+
+        c.setAlpha(230);
+
+        stroke(c);
+        strokeWeight(paintSize);
+        noFill();
+
+        bezier(
+          p1.x,
+          p1.y,
+
+          c1x,
+          c1y,
+
+          c2x,
+          c2y,
+
+          p2.x,
+          p2.y
+        );
+
+        // ---------------------------------------------------------------------------
+        // SPLATTER
+        // ---------------------------------------------------------------------------
+
+        emitSplats(p1, p2, segmentLength, paintSize);
+      }
+
+      // -----------------------------------------------------------------------------
+      // SPLATTER
+      // -----------------------------------------------------------------------------
+
+      function emitSplats(p1, p2, segmentLength, strokeSize) {
+        // Entire segment may produce no splatter.
+        if (random() > splatChance) {
+          return;
+        }
+
+        let count = floor(random(splatMin, splatMax + 1));
+
+        // Dense and burst modes occasionally become substantially heavier.
+        if (splatMode === "dense" && random() < 0.4) {
+          count *= floor(random(2, 5));
+        }
+
+        if (splatMode === "burst" && random() < 0.2) {
+          count = floor(random(20, 70));
+        }
+
+        for (let i = 0; i < count; i++) {
+          // Pick somewhere along this piece of gesture,
+          // rather than emitting everything from P1.
+
+          let along = random();
+
+          let baseX = lerp(p1.x, p2.x, along);
+
+          let baseY = lerp(p1.y, p2.y, along);
+
+          // -------------------------------------------------------------------------
+          // SPLAT DISTANCE
+          // -------------------------------------------------------------------------
+
+          let distanceFactor = lerp(0.25, random(), splatDistanceVariation);
+
+          let radius = segmentLength * splatSpread * distanceFactor;
+
+          // Spray mode has lots of close fine particles.
+
+          if (splatMode === "spray") {
+            radius *= pow(random(), 2);
           }
-          renderTheme();
-        });
-        renderTheme();
-      })();
+
+          // Burst mode occasionally throws a few much farther away.
+
+          if (splatMode === "burst" && random() < 0.12) {
+            radius *= random(2, 5);
+          }
+
+          let angle = random(TWO_PI);
+
+          let sx = baseX + cos(angle) * radius;
+
+          let sy = baseY + sin(angle) * radius;
+
+          // -------------------------------------------------------------------------
+          // SPLAT SIZE
+          // -------------------------------------------------------------------------
+
+          let s = strokeSize * random(splatSizeMin, splatSizeMax);
+
+          // Dense spray tends toward finer droplets.
+
+          if (splatMode === "spray" || splatMode === "dense") {
+            s *= random(0.3, 0.8);
+          }
+
+          // Burst occasionally gets a substantial drop.
+
+          if (splatMode === "burst" && random() < 0.08) {
+            s *= random(2, 5);
+          }
+
+          strokeWeight(max(s, 0.35));
+
+          // Tiny irregular stroke rather than perfect circle.
+
+          let jitter = max(0.5, s * 0.4);
+
+          line(
+            sx,
+            sy,
+
+            sx + random(-jitter, jitter),
+            sy + random(-jitter, jitter)
+          );
+        }
+      }
+
+      // -----------------------------------------------------------------------------
+      // RANDOMIZE THE CURRENT "BRUSH"
+      // -----------------------------------------------------------------------------
+
+      function randomizeGesture() {
+        // New color.
+        colorIndex = floor(random(palette.length));
+
+        // ---------------------------------------------------------------------------
+        // CURVE PERSONALITY
+        // ---------------------------------------------------------------------------
+
+        sampleSpacing = random(4, 12);
+
+        tension = random(0.55, 1.45);
+
+        // ---------------------------------------------------------------------------
+        // PAINT PERSONALITY
+        // ---------------------------------------------------------------------------
+
+        maxLineWidth = random(55, 130);
+
+        maxBlobSize = random(12, 59);
+
+        sizeInfluence = random(0.3, 0.8);
+
+        // ---------------------------------------------------------------------------
+        // PICK A SPLATTER PERSONALITY
+        // ---------------------------------------------------------------------------
+
+        let r = random();
+
+        if (r < 0.28) {
+          // Sparse traditional droplets.
+
+          splatMode = "sparse";
+
+          splatChance = random(0.1, 0.3);
+
+          splatMin = 0;
+
+          splatMax = floor(random(2, 7));
+
+          splatSpread = random(1.5, 4);
+
+          splatDistanceVariation = random(0.5, 1);
+
+          splatSizeMin = random(0.08, 0.15);
+
+          splatSizeMax = random(0.3, 0.65);
+        } else if (r < 0.52) {
+          // Fine mist around the gesture.
+
+          splatMode = "spray";
+
+          splatChance = random(0.5, 0.9);
+
+          splatMin = floor(random(2, 6));
+
+          splatMax = floor(random(8, 20));
+
+          splatSpread = random(0.8, 2.5);
+
+          splatDistanceVariation = random(0.7, 1);
+
+          splatSizeMin = random(0.03, 0.1);
+
+          splatSizeMax = random(0.12, 0.35);
+        } else if (r < 0.78) {
+          // Lots of paint around much of the gesture.
+
+          splatMode = "dense";
+
+          splatChance = random(0.65, 1);
+
+          splatMin = floor(random(5, 12));
+
+          splatMax = floor(random(15, 35));
+
+          splatSpread = random(1, 3.5);
+
+          splatDistanceVariation = random(0.5, 1);
+
+          splatSizeMin = random(0.04, 0.12);
+
+          splatSizeMax = random(0.15, 0.45);
+        } else {
+          // Usually moderate, occasionally explosive.
+
+          splatMode = "burst";
+
+          splatChance = random(0.25, 0.65);
+
+          splatMin = floor(random(1, 5));
+
+          splatMax = floor(random(5, 15));
+
+          splatSpread = random(2, 6);
+
+          splatDistanceVariation = random(0.7, 1);
+
+          splatSizeMin = random(0.05, 0.15);
+
+          splatSizeMax = random(0.25, 0.7);
+        }
+      }
+
+      // -----------------------------------------------------------------------------
+      // NEW GESTURE
+      // -----------------------------------------------------------------------------
+
+      function mousePressed() {
+        randomizeGesture();
+
+        // New gesture starts here.
+
+        points = [
+          {
+            x: mouseX,
+            y: mouseY,
+          },
+        ];
+
+        paintSize = 1;
+      }
+
+      // -----------------------------------------------------------------------------
+      // CLEAR
+      // -----------------------------------------------------------------------------
+
+      function keyPressed() {
+        if (key === " ") {
+          background(backgroundColor);
+
+          points = [];
+
+          paintSize = 1;
+        }
+      }
+
+      function windowResized() {
+        resizeCanvas(windowWidth, windowHeight);
+      }
     </script>
   </body>
 </html>
